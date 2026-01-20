@@ -12,28 +12,61 @@ Multi-model AI code review and planning CLI tool with parallel execution support
 
 ## Installation
 
+### Quick Start
+
 ```bash
 git clone https://github.com/JMacLulich/claude-mm-tool
 cd claude-mm-tool
 ./run install
 ```
 
-The installer will prompt you for API keys during installation:
-- OpenAI API key (required for GPT models)
-- Google AI API key (required for Gemini models)
-- Anthropic API key (optional, for Claude models)
+### What Happens During Installation
 
-You can press Enter to skip any key and add them later.
+The installer will:
 
-**Adding keys later:**
+1. **Create a Python virtual environment** at `~/.local/venvs/ai/`
+2. **Install dependencies** (openai, google-generativeai, anthropic, pytest, ruff)
+3. **Install the `ai` command** to `~/.local/bin/ai`
+4. **Install shell completions** (if Carapace is installed)
+5. **Prompt for API keys** interactively
 
-If you skip API keys during installation or need to add missing ones later:
+### API Keys Configuration
+
+During installation, you'll be prompted for:
+
+- **OpenAI API key** (required for GPT models) - Get from https://platform.openai.com/api-keys
+- **Google AI API key** (required for Gemini models) - Get from https://aistudio.google.com/apikey
+- **Anthropic API key** (optional, for Claude models) - Get from https://console.anthropic.com/
+
+**You can press Enter to skip any key** and add them later.
+
+API keys are stored securely at `~/.config/claude-mm-tool/env` with restricted permissions (chmod 600).
+
+### Adding or Updating API Keys Later
+
+If you skipped API keys during installation or need to add missing ones:
 
 ```bash
 ./run install --keys
 ```
 
-This will check for missing API keys and only prompt for the ones you haven't configured yet.
+**What this does:**
+- Checks which keys are already configured
+- Shows ✓ for keys you have
+- Only prompts for missing keys
+- Never overwrites existing keys
+
+**Example:**
+```bash
+$ ./run install --keys
+⚙️  Checking for missing API keys...
+
+✓ Google AI API key already configured
+Enter your OpenAI API key (or press Enter to skip): sk-proj-...
+✓ Anthropic API key already configured
+
+✓ API keys saved to ~/.config/claude-mm-tool/env
+```
 
 ## Usage
 
@@ -101,13 +134,34 @@ claude-mm-tool/
 
 ## Configuration
 
-Create `~/.config/claude-mm-tool/env`:
+### API Keys Location
+
+API keys are stored at: `~/.config/claude-mm-tool/env`
+
+**Recommended:** Use the installer to configure keys interactively:
 
 ```bash
+./run install --keys
+```
+
+**Manual setup:** Create the file manually:
+
+```bash
+# Create the config directory
+mkdir -p ~/.config/claude-mm-tool
+
+# Create the env file
+cat > ~/.config/claude-mm-tool/env <<'EOF'
 export OPENAI_API_KEY="sk-..."
 export GOOGLE_AI_API_KEY="..."
 export ANTHROPIC_API_KEY="sk-ant-..."  # optional
+EOF
+
+# Set secure permissions
+chmod 600 ~/.config/claude-mm-tool/env
 ```
+
+**Note:** The installer automatically sets proper permissions (chmod 600) to keep your keys secure.
 
 ## Testing
 
