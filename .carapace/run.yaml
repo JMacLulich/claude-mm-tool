@@ -13,5 +13,7 @@ commands:
         - ["all", "unit", "integration"]
   - name: install
     description: Install ai tool to ~/.local/bin
+    flags:
+      --keys: Prompt for missing API keys
   - name: help
     description: Show help message

@@ -172,10 +172,13 @@ def cmd_cache(args):
     if args.cache_command == "stats":
         stats = get_cache_stats()
         print("Cache statistics:")
-        print(f"  Files: {stats['count']}")
-        print(f"  Size: {stats['size_mb']:.2f} MB")
-        if stats['oldest_days'] is not None:
-            print(f"  Oldest: {stats['oldest_days']} days ago")
+        print(f"  Files: {stats['total_files']}")
+        print(f"  Size: {stats['total_size_mb']:.2f} MB")
+        if stats['oldest'] is not None:
+            from datetime import datetime
+            oldest = datetime.fromisoformat(stats['oldest'])
+            days_ago = (datetime.now() - oldest).days
+            print(f"  Oldest: {days_ago} days ago")
 
     elif args.cache_command == "clear":
         if args.older_than:
@@ -188,9 +191,16 @@ def cmd_cache(args):
 
 def cmd_usage(args):
     """Handle usage tracking commands."""
-    stats = get_usage_stats(
-        period="today" if args.today else "week" if args.week else "month" if args.month else "all"
-    )
+    # Convert period flags to days parameter
+    days = None  # all time
+    if args.today:
+        days = 1
+    elif args.week:
+        days = 7
+    elif args.month:
+        days = 30
+
+    stats = get_usage_stats(days=days)
 
     print("Usage statistics:")
     print(f"  Total cost: ${stats['total_cost']:.4f}")

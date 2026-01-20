@@ -18,6 +18,23 @@ cd claude-mm-tool
 ./run install
 ```
 
+The installer will prompt you for API keys during installation:
+- OpenAI API key (required for GPT models)
+- Google AI API key (required for Gemini models)
+- Anthropic API key (optional, for Claude models)
+
+You can press Enter to skip any key and add them later.
+
+**Adding keys later:**
+
+If you skip API keys during installation or need to add missing ones later:
+
+```bash
+./run install --keys
+```
+
+This will check for missing API keys and only prompt for the ones you haven't configured yet.
+
 ## Usage
 
 ```bash
