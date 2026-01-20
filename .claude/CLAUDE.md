@@ -46,3 +46,28 @@ When the user says "push", follow this workflow in order:
 - Always run `./run lint fix` first before manual fixes
 - Do not push if linting errors remain
 - Do not push if tests fail
+
+## Skill Development Workflow
+
+**When modifying the mm-review skill:**
+
+1. **Edit locally**: Make changes to `claude/skills/mm-review/skill.md` in this repo
+2. **Test installation**: Run `./run install` to copy the skill to `~/.claude/skills/mm-review/`
+3. **Test the skill**: Use the skill in a Claude session to verify changes
+4. **Commit changes**: Only commit changes to the local `claude/skills/mm-review/skill.md`
+
+**IMPORTANT: NEVER manually copy files to `~/.claude/` - always use `./run install` for testing.**
+
+The installation script handles:
+- Copying skill files to the global `~/.claude/skills/` directory
+- Ensuring proper file structure and permissions
+- Allowing you to test changes before committing
+
+## Local Tool Commands
+
+**Available commands for this project:**
+
+- `./run lint fix` - Auto-fix linting issues using Ruff
+- `./run lint` - Check for linting errors without fixing
+- `./run test` - Run all tests
+- `./run install` - Install the ai tool and mm-review skill

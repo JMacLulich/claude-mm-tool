@@ -69,6 +69,18 @@ main() {
         echo "  ✓ ai.yaml"
     fi
 
+    # Install mm-review skill to ~/.claude
+    if [[ -d "$ROOT/claude/skills/mm-review" ]]; then
+        echo "🔧 Installing mm-review skill..."
+        # Remove existing symlink if present
+        if [[ -L "$HOME/.claude/skills/mm-review" ]]; then
+            rm "$HOME/.claude/skills/mm-review"
+        fi
+        mkdir -p "$HOME/.claude/skills/mm-review"
+        cp "$ROOT/claude/skills/mm-review/skill.md" "$HOME/.claude/skills/mm-review/"
+        echo "  ✓ Skill installed to ~/.claude/skills/mm-review/"
+    fi
+
     # Check API keys
     local config_dir="$HOME/.config/claude-mm-tool"
     local env_file="$config_dir/env"
