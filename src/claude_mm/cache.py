@@ -15,7 +15,7 @@ from pathlib import Path
 
 def get_cache_dir() -> Path:
     """Get the cache directory path."""
-    cache_dir = Path.home() / ".config" / "ai" / "cache"
+    cache_dir = Path.home() / ".config" / "claude-mm-tool" / "cache"
     cache_dir.mkdir(parents=True, exist_ok=True)
     return cache_dir
 
@@ -26,7 +26,9 @@ def get_cache_key(model: str, prompt: str, system_prompt: str = None) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def get_cached_response(model: str, prompt: str, system_prompt: str = None, ttl_hours: int = 24) -> str:
+def get_cached_response(
+    model: str, prompt: str, system_prompt: str = None, ttl_hours: int = 24
+) -> str:
     """
     Get cached response if available and not expired.
 

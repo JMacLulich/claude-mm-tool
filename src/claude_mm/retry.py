@@ -39,16 +39,27 @@ def retry_with_backoff(max_attempts=3, initial_delay=1, max_delay=10, backoff_fa
 
                     # Don't retry on certain errors
                     error_msg = str(e).lower()
-                    if any(x in error_msg for x in ['api key', 'authentication', 'unauthorized', 'invalid']):
+                    if any(
+                        x in error_msg
+                        for x in ['api key', 'authentication', 'unauthorized', 'invalid']
+                    ):
                         # Authentication/config errors - don't retry
                         raise
 
                     if attempt < max_attempts:
                         # Check if it's a rate limit error
                         if '429' in error_msg or 'rate limit' in error_msg:
-                            print(f"⏸️  Rate limited. Retrying in {delay}s... (attempt {attempt}/{max_attempts})", file=sys.stderr)
+                            print(
+                                f"⏸️  Rate limited. Retrying in {delay}s... "
+                                f"(attempt {attempt}/{max_attempts})",
+                                file=sys.stderr
+                            )
                         else:
-                            print(f"⚠️  API call failed: {e}. Retrying in {delay}s... (attempt {attempt}/{max_attempts})", file=sys.stderr)
+                            print(
+                                f"⚠️  API call failed: {e}. Retrying in {delay}s... "
+                                f"(attempt {attempt}/{max_attempts})",
+                                file=sys.stderr
+                            )
 
                         time.sleep(delay)
                         delay = min(delay * backoff_factor, max_delay)

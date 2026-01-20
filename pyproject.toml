@@ -28,7 +28,6 @@ ignore = ["E402"]  # Module imports after code (needed for env loading)
 
 [tool.ruff.lint.per-file-ignores]
 "bin/ai" = ["E501"]  # Legacy file - ignore line length
-"bin/ai_new" = ["E501"]  # Legacy file - ignore line length
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

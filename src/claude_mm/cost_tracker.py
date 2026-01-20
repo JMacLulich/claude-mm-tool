@@ -229,6 +229,7 @@ def should_warn_about_cost(model: str, estimated_cost: float, threshold: float =
 
 import hashlib
 import json
+import sys
 from datetime import datetime, timedelta
 from pathlib import Path
 
@@ -363,7 +364,9 @@ def get_cache_key(model: str, prompt: str, system_prompt: str = None) -> str:
     return hashlib.sha256(content.encode()).hexdigest()
 
 
-def get_cached_response(model: str, prompt: str, system_prompt: str = None, ttl_hours: int = 24) -> str:
+def get_cached_response(
+    model: str, prompt: str, system_prompt: str = None, ttl_hours: int = 24
+) -> str:
     """
     Get cached response if available and not expired.
 

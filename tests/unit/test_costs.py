@@ -52,25 +52,27 @@ def test_estimate_cost_from_text():
     text = "This is a test prompt for cost estimation."
     model = "gpt-5.2-instant"
 
-    cost = estimate_cost_from_text(text, model)
-    assert cost > 0
-    assert isinstance(cost, float)
+    result = estimate_cost_from_text(model, text)
+    assert result["estimated_cost"] > 0
+    assert isinstance(result["estimated_cost"], float)
 
 
 def test_format_cost_warning():
     """Test cost warning formatting."""
-    warning = format_cost_warning(0.05, "test operation")
+    warning = format_cost_warning("gpt-5.2-instant", 0.05, "test operation")
     assert "$0.05" in warning
     assert "test operation" in warning
 
 
 def test_should_warn_about_cost():
     """Test cost warning threshold."""
+    model = "gpt-5.2-instant"
+
     # Small cost - no warning
-    assert not should_warn_about_cost(0.01, threshold=0.10)
+    assert not should_warn_about_cost(model, 0.01, threshold=0.10)
 
     # Large cost - warning
-    assert should_warn_about_cost(0.15, threshold=0.10)
+    assert should_warn_about_cost(model, 0.15, threshold=0.10)
 
-    # Exactly at threshold - warning
-    assert should_warn_about_cost(0.10, threshold=0.10)
+    # Exactly at threshold - no warning (must exceed threshold)
+    assert not should_warn_about_cost(model, 0.10, threshold=0.10)

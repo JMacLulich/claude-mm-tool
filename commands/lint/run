@@ -26,14 +26,14 @@ main() {
 
     if [[ "$fix_mode" == "fix" ]]; then
         echo "==> Running ruff check --fix"
-        "$python" -m ruff check --fix bin/ai bin/ai_new src/claude_mm tests 2>&1 || {
+        "$python" -m ruff check --fix bin/ai src/claude_mm tests 2>&1 || {
             echo "💡 Some issues couldn't be auto-fixed"
             return 1
         }
         echo "✓ Python linting complete (auto-fixed)"
     else
         echo "==> Running ruff check"
-        "$python" -m ruff check bin/ai bin/ai_new src/claude_mm tests 2>&1 || {
+        "$python" -m ruff check bin/ai src/claude_mm tests 2>&1 || {
             echo "💡 Run './run lint fix' to auto-fixed issues"
             return 1
         }

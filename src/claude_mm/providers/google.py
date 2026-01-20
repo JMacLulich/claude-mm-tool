@@ -56,13 +56,13 @@ class GoogleProvider(Provider):
         Returns:
             ProviderResponse with completion and usage
         """
-        try:
-            from google import genai
-        except ImportError:
+        import importlib.util
+        if importlib.util.find_spec("google.genai") is None:
             raise ProviderError(
                 "google-genai package not installed. Run: pip install google-genai"
             )
 
+        from google import genai
         client = genai.Client(api_key=self.api_key)
 
         # Gemini combines system and user prompts
@@ -132,9 +132,8 @@ class GoogleProvider(Provider):
         Returns:
             ProviderResponse with completion and usage
         """
-        try:
-            from google import genai
-        except ImportError:
+        import importlib.util
+        if importlib.util.find_spec("google.genai") is None:
             raise ProviderError(
                 "google-genai package not installed. Run: pip install google-genai"
             )

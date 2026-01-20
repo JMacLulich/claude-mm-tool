@@ -121,9 +121,18 @@ def review(
     # Build system prompt based on focus
     system_prompts = {
         "general": "You are an expert code reviewer. Provide thorough, actionable feedback.",
-        "security": "You are a security expert. Focus on security vulnerabilities, input validation, and potential exploits.",
-        "performance": "You are a performance expert. Focus on optimization opportunities, algorithmic efficiency, and resource usage.",
-        "architecture": "You are a software architect. Focus on design patterns, modularity, and long-term maintainability.",
+        "security": (
+            "You are a security expert. Focus on security vulnerabilities, "
+            "input validation, and potential exploits."
+        ),
+        "performance": (
+            "You are a performance expert. Focus on optimization opportunities, "
+            "algorithmic efficiency, and resource usage."
+        ),
+        "architecture": (
+            "You are a software architect. Focus on design patterns, modularity, "
+            "and long-term maintainability."
+        ),
     }
     system_prompt = system_prompts.get(focus, system_prompts["general"])
 
@@ -331,7 +340,9 @@ async def review_async(
         "general": "You are an expert code reviewer. Provide thorough, actionable feedback.",
         "security": "You are a security expert. Focus on security vulnerabilities.",
         "performance": "You are a performance expert. Focus on optimization opportunities.",
-        "architecture": "You are a software architect. Focus on design patterns and maintainability.",
+        "architecture": (
+            "You are a software architect. Focus on design patterns and maintainability."
+        ),
     }
     system_prompt = system_prompts.get(focus, system_prompts["general"])
 
