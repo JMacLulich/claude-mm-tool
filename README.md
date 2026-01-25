@@ -186,6 +186,10 @@ export GOOGLE_AI_API_KEY="..."
 - **Fail-Safe**: Auto-retry with smart error detection
 - **Fast**: Parallel execution, response caching
 
+## Acknowledgements
+
+The `./run` system was inspired by https://github.com/alesya-h/ - thank you Alesya!
+
 ## License
 
 MIT
