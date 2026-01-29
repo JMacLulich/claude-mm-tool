@@ -3,8 +3,8 @@
 import os
 from typing import Optional
 
-from pricing import get_model_pricing
-from retry import retry_with_backoff
+from claude_mm.pricing import get_model_pricing
+from claude_mm.retry import retry_with_backoff
 
 from .base import Provider, ProviderError, ProviderResponse
 

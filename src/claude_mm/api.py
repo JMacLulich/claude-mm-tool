@@ -25,27 +25,12 @@ import asyncio
 from decimal import Decimal
 from typing import Dict, List, Optional, Union
 
-from cache import cache_response, get_cached_response
-from config import load_config
-from providers import get_provider
-from providers.base import ProviderResponse
-from usage import log_api_call
-
-# Model name mappings to (provider, model_id)
-MODEL_MAPPING = {
-    "gpt": ("openai", "gpt-5.2"),
-    "gpt-5.2": ("openai", "gpt-5.2"),
-    "gpt-5.2-instant": ("openai", "gpt-5.2-instant"),
-    "gpt-5.2-pro": ("openai", "gpt-5.2-pro"),
-    "gpt-4o": ("openai", "gpt-4o"),
-    "gpt-4": ("openai", "gpt-4"),
-    "gemini": ("google", "gemini-3-flash-preview"),
-    "gemini-3-flash-preview": ("google", "gemini-3-flash-preview"),
-    "claude": ("anthropic", "claude-sonnet-4-5-20250929"),
-    "claude-sonnet": ("anthropic", "claude-sonnet-4-5-20250929"),
-    "claude-opus": ("anthropic", "claude-3-opus-20240229"),
-    "claude-haiku": ("anthropic", "claude-3-haiku-20240307"),
-}
+from claude_mm.cache import cache_response, get_cached_response
+from claude_mm.config import load_config
+from claude_mm.models import normalize_model_name
+from claude_mm.providers import get_provider
+from claude_mm.providers.base import ProviderResponse
+from claude_mm.usage import log_api_call
 
 
 class ReviewResult:
@@ -116,7 +101,7 @@ def review(
         model_list = [model]
     else:
         # Default to configured review model
-        model_list = [config.get("default_models", {}).get("review", "gpt-5.2-instant")]
+        model_list = [config.get("default_models", {}).get("review", "gpt-5.2-chat-latest")]
 
     # Build system prompt based on focus
     system_prompts = {
@@ -181,7 +166,7 @@ def _review_single(
             )
 
     # Get provider and call
-    provider_name, model_id = MODEL_MAPPING.get(model, ("openai", model))
+    provider_name, model_id = normalize_model_name(model)
     provider = get_provider(provider_name)
     response = provider.complete(prompt, model_id, system_prompt)
 
@@ -333,7 +318,7 @@ async def review_async(
     elif model:
         model_list = [model]
     else:
-        model_list = [config.get("default_models", {}).get("review", "gpt-5.2-instant")]
+        model_list = [config.get("default_models", {}).get("review", "gpt-5.2-chat-latest")]
 
     # Build system prompt
     system_prompts = {
@@ -405,7 +390,7 @@ async def _review_single_async(
             )
 
     # Get provider and call async
-    provider_name, model_id = MODEL_MAPPING.get(model, ("openai", model))
+    provider_name, model_id = normalize_model_name(model)
     provider = get_provider(provider_name)
     response = await provider.complete_async(prompt, model_id, system_prompt)
 

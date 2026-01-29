@@ -154,7 +154,7 @@ This skill integrates with the separate `claude-mm-tool` repository:
 ## Cost Information
 
 - Typical mm review: $0.02-0.03
-- Uses: GPT-5.2-instant + Gemini-3-flash-preview
+- Uses: GPT-5.2 Instant (gpt-5.2-chat-latest) + Gemini-3-flash-preview
 - Parallel execution: ~2-3 seconds
 - Cached for 24 hours
 

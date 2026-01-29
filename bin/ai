@@ -72,7 +72,7 @@ def cmd_review(args):
 
     # Handle multimode (mm)
     if args.model == "mm":
-        models = ["gpt-5.2-instant", "gemini"]
+        models = ["gpt-5.2-chat-latest", "gemini"]
         print("🔍 Running multimode review with GPT + Gemini in parallel...", file=sys.stderr)
         if args.focus and args.focus != "general":
             print(f"📊 Focus: {args.focus}", file=sys.stderr)

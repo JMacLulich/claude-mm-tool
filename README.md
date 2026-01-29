@@ -75,7 +75,7 @@ Enter your OpenAI API key (or press Enter to skip): sk-proj-...
 git diff | ai review --model mm
 
 # Single model review
-git diff | ai review --model gpt-5.2-instant --focus security
+git diff | ai review --model gpt-5.2-chat-latest --focus security
 
 # Planning
 ai plan "Add user authentication"

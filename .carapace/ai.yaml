@@ -12,7 +12,7 @@ commands:
       flag:
         model:
           - "gpt-5.2\tGPT-5.2 Chat Latest ($1.75/$14 per 1M)\tgreen"
-          - "gpt-5.2-instant\tGPT-5.2 Instant - fast ($0.40/$1.60 per 1M)\tcyan"
+          - "gpt-5.2-chat-latest\tGPT-5.2 Instant - fast ($0.40/$1.60 per 1M)\tcyan"
           - "gpt-5.2-pro\tGPT-5.2 Pro - expensive ($8.75/$70 per 1M)\tred"
           - "gemini\tGemini 3 Flash Preview\tblue"
           - "gemini-pro\tGemini 3 Pro Preview\tmagenta"
@@ -28,7 +28,7 @@ commands:
       flag:
         model:
           - "mm\tMultimode - parallel GPT + Gemini (fastest)\tmagenta"
-          - "gpt-5.2-instant\tGPT-5.2 Instant - default, fast\tgreen"
+          - "gpt-5.2-chat-latest\tGPT-5.2 Instant - default, fast\tgreen"
           - "gpt-5.2\tGPT-5.2 Chat Latest\tcyan"
           - "gemini\tGemini 3 Flash Preview\tblue"
           - "claude\tClaude Sonnet 4.5 (cross-check)\tyellow"

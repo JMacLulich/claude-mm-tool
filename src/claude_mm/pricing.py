@@ -15,9 +15,9 @@ import yaml
 
 DEFAULT_PRICING = {
     "openai": {
-        "gpt-5.2-instant": {"input": 0.40, "output": 1.60},
-        "gpt-5.2": {"input": 1.75, "output": 14.00},
-        "gpt-5.2-pro": {"input": 8.75, "output": 70.00},
+        "gpt-5.2-chat-latest": {"input": 0.40, "output": 1.60},  # GPT-5.2 Instant (fast)
+        "gpt-5.2": {"input": 1.75, "output": 14.00},  # GPT-5.2 Thinking (standard)
+        "gpt-5.2-pro": {"input": 21.00, "output": 84.00},  # GPT-5.2 Pro (expensive)
         "gpt-4o": {"input": 2.50, "output": 10.00},
         "gpt-4": {"input": 30.00, "output": 60.00},
     },

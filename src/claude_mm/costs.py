@@ -9,75 +9,17 @@ Caching Support:
 - Google Gemini: Supports context caching with 75% discount on cached input tokens
 - Anthropic Claude: Supports prompt caching with 90% discount on cached input tokens
 
-Pricing Accuracy:
-- OpenAI GPT-5.2: Confirmed from official pricing page
-- Google Gemini: Confirmed from official pricing page
-- Anthropic Claude: Estimated pricing (verify with Anthropic for exact rates)
+Pricing is loaded from pricing.py. This module adds caching discount calculations.
 """
 
-# API pricing (per 1M tokens)
-# Sources:
-# - OpenAI: https://openai.com/api/pricing/
-# - Google: https://ai.google.dev/pricing
-# - Anthropic: https://www.anthropic.com/pricing (Claude prices are approximate)
+from claude_mm.models import normalize_model_name
+from claude_mm.pricing import get_model_pricing
 
-# Base pricing data
-_GPT_INSTANT_PRICING = {
-    "input": 0.40,      # $0.40 per 1M tokens
-    "output": 1.60,     # $1.60 per 1M tokens
-    "cached": 0.04,     # 90% discount on cached input
-    "is_estimated": False,
-}
-
-_GPT_STANDARD_PRICING = {
-    "input": 1.75,      # $1.75 per 1M tokens
-    "output": 14.00,    # $14.00 per 1M tokens
-    "cached": 0.175,    # 90% discount on cached input
-    "is_estimated": False,
-}
-
-_GPT_PRO_PRICING = {
-    "input": 8.75,      # $8.75 per 1M tokens (estimated 5x standard)
-    "output": 70.00,    # $70.00 per 1M tokens (estimated 5x standard)
-    "cached": 0.875,    # 90% discount on cached input
-    "is_estimated": True,  # Pro pricing is estimated
-}
-
-_GEMINI_FLASH_PRICING = {
-    "input": 0.075,     # $0.075 per 1M tokens (Google Gemini 3 Flash)
-    "output": 0.30,     # $0.30 per 1M tokens
-    "cached": 0.01875,  # 75% discount on cached input
-    "is_estimated": False,
-}
-
-_CLAUDE_SONNET_PRICING = {
-    "input": 3.00,      # $3.00 per 1M tokens (Claude Sonnet 4.5)
-    "output": 15.00,    # $15.00 per 1M tokens
-    "cached": 0.30,     # 90% discount on cached input
-    "is_estimated": True,  # Claude pricing is approximate
-}
-
-# Model aliases with pricing
-# Note: Each model gets an independent copy to prevent shared mutable state
-# Note: This dict accepts all user-facing model names (including aliases like "gpt", "gemini")
-# bin/ai normalizes these to API model names before calling APIs, but costs.py
-# accepts any alias for standalone cost estimation
-PRICING = {
-    # GPT models
-    "gpt-5.2-instant": _GPT_INSTANT_PRICING.copy(),
-    "gpt-5.2-chat-latest": _GPT_STANDARD_PRICING.copy(),
-    "gpt-5.2": _GPT_STANDARD_PRICING.copy(),
-    "gpt-5": _GPT_STANDARD_PRICING.copy(),
-    "gpt": _GPT_STANDARD_PRICING.copy(),
-    "gpt-5.2-pro": _GPT_PRO_PRICING.copy(),
-
-    # Gemini models (gemini-3-flash-preview only)
-    "gemini": _GEMINI_FLASH_PRICING.copy(),
-    "gemini-3-flash-preview": _GEMINI_FLASH_PRICING.copy(),
-
-    # Claude models (approximate pricing - verify with Anthropic)
-    "claude": _CLAUDE_SONNET_PRICING.copy(),
-    "claude-sonnet-4-5-20250929": _CLAUDE_SONNET_PRICING.copy(),
+# Caching discounts by provider
+CACHE_DISCOUNTS = {
+    "openai": 0.90,  # 90% discount on cached input
+    "google": 0.75,  # 75% discount on cached input
+    "anthropic": 0.90,  # 90% discount on cached input
 }
 
 # Rough token estimation (chars / 4)
@@ -102,27 +44,35 @@ def estimate_cost(
     Estimate cost for an API call.
 
     Args:
-        model: Model name (e.g., "gpt-5.2", "gpt-5.2-instant", "gpt-5.2-pro")
+        model: Model name (e.g., "gpt-5.2", "gpt-5.2-chat-latest", "gpt-5.2-pro")
         input_tokens: Number of input tokens
         output_tokens: Number of output tokens
-        cached_tokens: Number of cached input tokens (90% discount)
+        cached_tokens: Number of cached input tokens (discount varies by provider)
 
     Returns:
         Estimated cost in USD
     """
-    if model not in PRICING:
-        available_models = ", ".join(PRICING.keys())
-        raise ValueError(f"Unknown model '{model}'. Available models: {available_models}")
+    try:
+        provider, api_model = normalize_model_name(model)
+    except ValueError as e:
+        raise ValueError(f"Unknown model '{model}': {e}")
 
-    pricing = PRICING[model]
+    pricing = get_model_pricing(provider, api_model)
+    if not pricing:
+        raise ValueError(f"No pricing data available for {provider}/{api_model}")
 
     # Validate cached_tokens to prevent negative token counts
     cached_tokens = max(0, min(cached_tokens, input_tokens))
 
-    # Calculate costs with safe lookups
+    # Calculate costs
     uncached_tokens = input_tokens - cached_tokens
     input_cost = (uncached_tokens / 1_000_000) * pricing.get("input", 0)
-    cached_cost = (cached_tokens / 1_000_000) * pricing.get("cached", 0)
+
+    # Apply caching discount
+    cache_discount = CACHE_DISCOUNTS.get(provider, 0.90)
+    cached_price = pricing.get("input", 0) * (1 - cache_discount)
+    cached_cost = (cached_tokens / 1_000_000) * cached_price
+
     output_cost = (output_tokens / 1_000_000) * pricing.get("output", 0)
 
     total_cost = input_cost + cached_cost + output_cost
@@ -156,8 +106,8 @@ def estimate_cost_from_text(
 
     cost = estimate_cost(model, input_tokens, expected_output_tokens, cached_tokens)
 
-    pricing = PRICING.get(model, {})
-    is_estimated = pricing.get("is_estimated", True)  # Default to True for safety
+    # Pro models are expensive, mark as estimated
+    is_estimated = "pro" in model.lower()
 
     return {
         "model": model,
@@ -182,12 +132,21 @@ def format_cost_warning(model: str, estimated_cost: float, operation: str = "ope
     Returns:
         Formatted warning string
     """
-    if model == "gpt-5.2-pro":
+    if "pro" in model.lower():
         warning_level = "⚠️  EXPENSIVE"
     elif estimated_cost > 0.10:
         warning_level = "💰 Moderate cost"
     else:
         warning_level = "✓ Low cost"
+
+    try:
+        provider, api_model = normalize_model_name(model)
+        pricing = get_model_pricing(provider, api_model)
+        input_price = pricing.get("input", 0) if pricing else 0
+        output_price = pricing.get("output", 0) if pricing else 0
+    except (ValueError, Exception):
+        input_price = 0
+        output_price = 0
 
     return f"""
 {warning_level}: {operation}
@@ -195,8 +154,8 @@ Model: {model}
 Estimated cost: ${estimated_cost:.4f}
 
 Billing rates (per 1M tokens):
-  Input:  ${PRICING.get(model, {}).get('input', 0):.2f}
-  Output: ${PRICING.get(model, {}).get('output', 0):.2f}
+  Input:  ${input_price:.2f}
+  Output: ${output_price:.2f}
 """
 
 
@@ -229,8 +188,8 @@ if __name__ == "__main__":
 
     # Code review
     review_input = "git diff with 500 lines of code changes"
-    review_estimate = estimate_cost_from_text("gpt-5.2-instant", review_input * 100, 500)
-    print(f"Code Review (gpt-5.2-instant): {review_estimate['cost_formatted']}")
+    review_estimate = estimate_cost_from_text("gpt-5.2-chat-latest", review_input * 100, 500)
+    print(f"Code Review (gpt-5.2-chat-latest): {review_estimate['cost_formatted']}")
 
     # Planning
     plan_input = "Design user authentication system with OAuth, JWT, session management"
