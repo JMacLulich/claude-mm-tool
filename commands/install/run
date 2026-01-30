@@ -21,7 +21,32 @@ Options:
 EOF
 }
 
+check_dependencies() {
+    if ! command -v python3 &> /dev/null; then
+        echo "Error: python3 is not installed" >&2
+        exit 1
+    fi
+
+    # Check for venv module (often missing on minimal Debian/Ubuntu)
+    if ! python3 -m venv --help &> /dev/null; then
+        echo "Error: Python 'venv' module is missing." >&2
+        echo "  On Ubuntu/Debian, please run: sudo apt install python3-venv" >&2
+        exit 1
+    fi
+}
+
+check_path() {
+    local bin_dir="$HOME/.local/bin"
+    if [[ ":$PATH:" != *":$bin_dir:"* ]]; then
+        echo ""
+        echo "⚠️  Warning: $bin_dir is not in your PATH."
+        echo "   To use the 'ai' command, add this to your ~/.bashrc or ~/.profile:"
+        echo "     export PATH=\"$bin_dir:\$PATH\""
+    fi
+}
+
 main() {
+    check_dependencies
     cd "$ROOT"
 
     local force_keys=false
@@ -173,6 +198,9 @@ main() {
     echo "   Command: ai"
     echo "   Location: $ai_bin"
     echo "   Config: $config_dir"
+    
+    check_path
+    
     echo ""
     echo "Try: ai --help"
 }

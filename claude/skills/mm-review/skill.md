@@ -1,3 +1,10 @@
+---
+name: mm-review
+description: Run parallel multi-model AI code reviews using GPT + Gemini for instant dual perspectives on code changes. Use when user says "mm review", "get a mm review", "multimode review", "run mm review", "review with mm", "get multi-model feedback", or "parallel review".
+disable-model-invocation: false
+allowed-tools: Bash(git *), Bash(which ai), Bash(ai review *), AskUserQuestion
+---
+
 # Multi-Model Review Skill
 
 ## Purpose
